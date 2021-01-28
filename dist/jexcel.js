@@ -8,7 +8,7 @@
  * This software is distribute under MIT License
  */
 
- if (! jSuites && typeof(require) === 'function') {
+if (! jSuites && typeof(require) === 'function') {
     var jSuites = require('jsuites');
     require('jsuites/dist/jsuites.css');
 }
@@ -2033,19 +2033,17 @@
                         var img = cell.children[0].children[0].children[0];
                         var value = img && img.tagName == 'IMG' ? img.src : '';
                     } else if (obj.options.columns[x].type == 'numeric') {
-
                         // console.log('NUMERIC!!!! ', obj.options.columns[x].type)
-
                         var value = cell.children[0].value;
+                        const roundNumber2Decimals = (num) => Math.round((num + Number.EPSILON) * 100) / 100;
 
-                        // console.log('value numeric', value)
+                        value = roundNumber2Decimals(Number(value)).toString();
 
                         if (value.substr(0,1) != '=') {
                             if (value == '') {
                                 value = obj.options.columns[x].allowEmpty ? '' : 0;
                             } else {
-                                // console.log('else')
-                                value = Number(cell.children[0].value)
+                                value = roundNumber2Decimals(Number(cell.children[0].value))
                             }
                         }
                         cell.children[0].onblur = null;
@@ -2376,7 +2374,7 @@
             // console.log('obj.records ', obj.records)
             // console.log('obj.records[y][x] ', obj.records[y][x])
             // Changing value depending on the column type
-            if (obj.records[y][x].classList.contains('readonly') == true && ! force) {
+            if (obj.records[y] && obj.records[y][x] && obj.records[y][x].classList.contains('readonly') == true && ! force) {
                 // Do nothing
                 var record = {
                     x: x,
