@@ -2037,8 +2037,6 @@ if (! jSuites && typeof(require) === 'function') {
                         var value = cell.children[0].value;
                         const roundNumber2Decimals = (num) => Math.round((num + Number.EPSILON) * 100) / 100;
 
-                        value = roundNumber2Decimals(Number(value)).toString();
-
                         if (value.substr(0,1) != '=') {
                             if (value == '') {
                                 value = obj.options.columns[x].allowEmpty ? '' : 0;
