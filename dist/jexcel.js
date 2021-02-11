@@ -7107,6 +7107,7 @@ if (! jSuites && typeof(require) === 'function') {
                 root.removeEventListener("mousedown", jexcel.mouseDownControls);
                 root.removeEventListener("mousemove", jexcel.mouseMoveControls);
                 root.removeEventListener("mouseover", jexcel.mouseOverControls);
+                root.removeEventListener("click", jexcel.onClickControls);
                 root.removeEventListener("dblclick", jexcel.doubleClickControls);
                 root.removeEventListener("paste", jexcel.pasteControls);
                 root.removeEventListener("contextmenu", jexcel.contextMenuControls);
@@ -7124,6 +7125,7 @@ if (! jSuites && typeof(require) === 'function') {
         root.addEventListener("mousedown", jexcel.mouseDownControls);
         root.addEventListener("mousemove", jexcel.mouseMoveControls);
         root.addEventListener("mouseover", jexcel.mouseOverControls);
+        root.addEventListener("click", jexcel.onClickControls);
         root.addEventListener("dblclick", jexcel.doubleClickControls);
         root.addEventListener("paste", jexcel.pasteControls);
         root.addEventListener("contextmenu", jexcel.contextMenuControls);
@@ -7969,6 +7971,38 @@ if (! jSuites && typeof(require) === 'function') {
                         if (cell && cell.classList.contains('highlight')) {
                             jexcel.current.openEditor(cell);
                         }
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * (NEW by Rodrigo) On click event handler: controls the clicks over cell edition
+     */
+    jexcel.onClickControls = function(e) {
+        // Jexcel is selected
+        if (jexcel.current) {
+            // Get table
+            var jexcelTable = jexcel.getElement(e.target);
+
+            // Click over body cell
+            if (jexcelTable[1] == 2 && jexcel.current.options.editable == true) {
+                if (!jexcel.current.edition) {
+                    var getCellCoords = function(element) {
+                        if (element.parentNode) {
+                            var x = element.getAttribute('data-x');
+                            var y = element.getAttribute('data-y');
+                            if (x && y) {
+                                return element;
+                            } else {
+                                return getCellCoords(element.parentNode);
+                            }
+                        }
+                    }
+                    var cell = getCellCoords(e.target);
+                    if (cell && cell.classList.contains('highlight')) {
+                        jexcel.current.openEditor(cell);
                     }
                 }
             }
