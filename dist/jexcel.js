@@ -2007,7 +2007,7 @@ if (! jSuites && typeof(require) === 'function') {
          * @return void
          */
         obj.closeEditor = function(cell, save) {
-            // console.log('aca 5')
+            // console.log('aca 5 cell ', cell)
             var x = parseInt(cell.getAttribute('data-x'));
             var y = parseInt(cell.getAttribute('data-y'));
 
@@ -2220,6 +2220,7 @@ if (! jSuites && typeof(require) === 'function') {
 
                 // console.log('setValue x ', x)
                 // console.log('setValue y ', y)
+                // console.log('setValue value ', value)
     
                 // Update cell
                 records.push(obj.updateCell(x, y, value, force));
@@ -2233,10 +2234,21 @@ if (! jSuites && typeof(require) === 'function') {
                     var x = cell.getAttribute('data-x');
                     var y = cell.getAttribute('data-y');
                 }
+
+                // console.log('2 setValue x ', x)
+                // console.log('2 setValue y ', y)
+                // console.log('2 setValue value ', value)
     
                 // Update cell
                 if (x != null && y != null) {
-                    records.push(obj.updateCell(x, y, value, force));
+
+                    // console.log(' 90 value ', value)
+                    // console.log(' 90 records ', records)
+                    // records.push(obj.updateCell(x, y, value, force));
+
+                    // NEW: Updated by Rodrigo to prevent undefined values in our IU
+                    const record = obj.updateCell(x, y, value, force);
+                    if (record) records.push(record);
     
                     // Update all formulas in the chain
                     obj.updateFormulaChain(x, y, records);
@@ -2267,9 +2279,12 @@ if (! jSuites && typeof(require) === 'function') {
                              // Update cell
                             if (x != null && y != null) {
 
-                                // console.log('aca 7 ', value)
+                                // console.log('aca 7 value ', value)
+                                // console.log('aca 7 records ', records)
 
-                                records.push(obj.updateCell(x, y, value, force));
+                                // NEW: Updated by Rodrigo to prevent undefined values in our IU
+                                const record = obj.updateCell(x, y, value, force);
+                                if (record) records.push(record);
     
                                 // Update all formulas in the chain
                                 obj.updateFormulaChain(x, y, records);
@@ -2278,19 +2293,22 @@ if (! jSuites && typeof(require) === 'function') {
                     }
                 }
             }
-    
-            // Update history
-            obj.setHistory({
-                action:'setValue',
-                records:records,
-                selection:obj.selectedCell,
-            });
-    
-            // Update table with custom configurations if applicable
-            obj.updateTable();
-    
-            // On after changes
-            obj.onafterchanges(el, records);
+
+            // NEW: Updated by Rodrigo to prevent unnecessary renders in our UI
+            if (records.length) {
+                // Update history
+                obj.setHistory({
+                    action:'setValue',
+                    records:records,
+                    selection:obj.selectedCell,
+                });
+        
+                // Update table with custom configurations if applicable
+                obj.updateTable();
+        
+                // On after changes
+                obj.onafterchanges(el, records);
+            }
         }
     
         /**
@@ -2370,9 +2388,9 @@ if (! jSuites && typeof(require) === 'function') {
          */
         obj.updateCell = function(x, y, value, force) {
             // console.log('obj.records ', obj.records)
-            // console.log('obj.records[y][x] ', obj.records[y][x])
+            // console.log('value ', value)
             // Changing value depending on the column type
-            if (obj.records[y] && obj.records[y][x] && obj.records[y][x].classList.contains('readonly') == true && ! force) {
+            if (obj.records[y] && obj.records[y][x] && obj.records[y][x].classList.contains('readonly') == true && !force) {
                 // Do nothing
                 var record = {
                     x: x,
@@ -2380,7 +2398,8 @@ if (! jSuites && typeof(require) === 'function') {
                     col: x,
                     row: y
                 }
-            } else {
+            // NEW: Updated by Rodrigo to prevent errors on entering data quickly
+            } else if (obj.records[y] && obj.records[y][x]) {
                 // Security
                 if ((''+value).substr(0,1) == '=' && obj.options.secureFormulas == true) {
                     var val = secureFormula(value);
